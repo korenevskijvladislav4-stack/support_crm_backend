@@ -14,7 +14,9 @@ return new class extends Migration
     {
         if (Schema::hasTable('user_shifts')) {
             Schema::table('user_shifts', function (Blueprint $table) {
+                if (!Schema::hasColumn('user_shifts', 'is_requested')) {
                     $table->boolean('is_requested')->default(false)->after('status');
+                }
             });
 
             // Обновляем существующие записи: все существующие смены считаются стандартными

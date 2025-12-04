@@ -189,15 +189,15 @@ class Service
         })->get();
 
         [$year, $month] = explode('-', $data['top_start'] ?? now()->format('Y-m'));
-        
+
         $this->generateShifts($year, $month);
 
         foreach ($users as $user) {
             // Для графика 5/2 не учитываем верхнюю/нижнюю смену - это просто будние дни
             // Для графика 2/2 учитываем верхнюю/нижнюю смену
             if ($user->scheduleType->name == '2/2') {
-                $start = $user->group->shift_number == 'Верхняя' 
-                    ? $data['top_start'] 
+                $start = $user->group->shift_number == 'Top'
+                    ? $data['top_start']
                     : $data['bottom_start'];
             } else {
                 // Для графика 5/2 используем одну дату начала для всех
@@ -220,7 +220,7 @@ class Service
     {
         $dateCarbon = Carbon::parse($date)->startOfDay();
         $now = Carbon::now();
-        
+
         // Массовое удаление (soft delete) всех смен пользователя начиная с указанной даты (включительно)
         // Используем прямой SQL запрос для надежности
         DB::table('user_shifts')
@@ -271,7 +271,7 @@ class Service
         // Используем withoutTrashed() чтобы получить только активные смены
         // Дополнительно проверяем через whereHas, что пользователь действительно в нужной группе
         $otherUserIds = $otherUsers->pluck('id')->toArray();
-        
+
         $standardShifts = UserShift::withoutTrashed()
             ->whereIn('user_id', $otherUserIds)
             ->where('status', UserShift::STATUS_APPROVED)
@@ -336,15 +336,15 @@ class Service
         // Применяем смены к пользователю
         $assignedShifts = [];
         $transferDateStart = $transferDateCarbon->copy()->startOf('day');
-        
+
         foreach ($shiftsByDate as $date => $userShifts) {
             $dateCarbon = Carbon::parse($date);
-            
+
             // Пропускаем даты до transferDate - копируем только смены начиная с даты выхода
             if ($dateCarbon->lt($transferDateStart)) {
                 continue;
             }
-            
+
             // Пропускаем даты, где у пользователя была удалена индивидуально смена
             if (in_array($date, $userDeletedShiftDates)) {
                 continue;
@@ -377,7 +377,7 @@ class Service
         // дополняем график на основе типа графика пользователя, но только начиная с transferDate
         $daysRemaining = $transferDateCarbon->copy()->endOfMonth()->diffInDays($transferDateCarbon) + 1;
         $minShiftsNeeded = max(5, (int)($daysRemaining * 0.3)); // Минимум 30% от оставшихся дней или 5 смен
-        
+
         if (count($assignedShifts) < $minShiftsNeeded) {
             // Дополняем график только если действительно не хватает смен
             $this->assignShiftsToUser($user, $transferDate);
