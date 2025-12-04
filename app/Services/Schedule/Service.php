@@ -53,9 +53,15 @@ class Service
 
     public function assignShiftsToUser($user, $startDate)
     {
-        $workingDates = $user->scheduleType->name == '2/2'
-            ? $this->getAgentSchedule($startDate)
-            : $this->getAdminSchedule($startDate);
+        // Определяем тип графика и получаем рабочие даты
+        $scheduleTypeName = $user->scheduleType->name ?? '';
+        
+        if ($scheduleTypeName === '2/2') {
+            $workingDates = $this->getAgentSchedule($startDate);
+        } else {
+            // Для всех остальных типов (включая 5/2) используем будние дни
+            $workingDates = $this->getAdminSchedule($startDate);
+        }
 
         $shiftIds = [];
         $alreadyAssignedShifts = []; // Для хранения уже назначенных смен
@@ -131,7 +137,10 @@ class Service
         $currentDate = $startDate->copy();
         $endDate = $startDate->copy()->endOfMonth();
         while ($currentDate->lte($endDate)) {
-            if ($currentDate->dayName !== 'Saturday' && $currentDate->dayName !== 'Sunday') {
+            // Используем числовое значение дня недели для надежности (0 = воскресенье, 6 = суббота)
+            // Будние дни: понедельник (1) - пятница (5)
+            $dayOfWeek = $currentDate->dayOfWeek;
+            if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
                 array_push($workingDays, $currentDate->format('Y-m-d'));
             }
             $currentDate = $currentDate->addDay();
@@ -196,12 +205,18 @@ class Service
             // Для графика 5/2 не учитываем верхнюю/нижнюю смену - это просто будние дни
             // Для графика 2/2 учитываем верхнюю/нижнюю смену
             if ($user->scheduleType->name == '2/2') {
-                $start = $user->group->shift_number == 'Top'
-                    ? $data['top_start']
-                    : $data['bottom_start'];
+                // Проверяем shift_number группы для определения верхней/нижней смены
+                // Может быть 'Вер', 'Верх', 'Верхняя' или начинаться с 'Вер'
+                $shiftNumber = $user->group->shift_number ?? '';
+                $isTopShift = !empty($shiftNumber) && ($shiftNumber === 'Верхняя');
+                
+                $start = $isTopShift 
+                    ? ($data['top_start'] ?? $data['bottom_start'])
+                    : ($data['bottom_start'] ?? $data['top_start']);
             } else {
-                // Для графика 5/2 используем одну дату начала для всех
-                $start = $data['top_start'] ?? $data['bottom_start'];
+                // Для графика 5/2 используем одну дату начала для всех (только будние дни)
+                // Приоритет: top_start, если нет - bottom_start, если нет - начало месяца
+                $start = $data['top_start'] ?? $data['bottom_start'] ?? now()->format('Y-m-01');
             }
             $this->assignShiftsToUser($user, $start);
         }
