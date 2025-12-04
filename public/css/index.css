@@ -1,0 +1,51 @@
+
+.ts-wrapper {
+    max-width: 200px;
+    max-height: 33px;
+}
+
+.ts-control {
+    max-height: 40px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+}
+
+.ts-control-expanded {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+}
+
+/* Показываем по клику */
+.ts-wrapper.show-expanded .ts-control-expanded {
+    display: block;
+}
+.option-item {
+    display: flex;
+    align-items: center;
+}
+.option-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+}
+
+.option-item .checkmark {
+    color: #007bff; /* цвет галочки */
+    visibility: hidden; /* скрываем по умолчанию */
+}
+
+.option-item.selected .checkmark {
+    visibility: visible; /* показываем, если элемент выбран */
+}
