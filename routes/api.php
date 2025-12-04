@@ -17,11 +17,6 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ScheduleTypeController;
 use App\Http\Controllers\ShiftRequestController;
 use App\Http\Controllers\TeamController;
-use App\Http\Controllers\TicketAttachmentController;
-use App\Http\Controllers\TicketCommentController;
-use App\Http\Controllers\TicketController;
-use App\Http\Controllers\TicketStatusController;
-use App\Http\Controllers\TicketTypeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PenaltyController;
 use Illuminate\Support\Facades\Route;
@@ -97,25 +92,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('extra-shifts', ExtraShiftController::class)->only(['index', 'store']);
     Route::post('extra-shifts/{extraShift}/approve', [ExtraShiftController::class, 'approve'])->name('extra-shifts.approve');
     Route::post('extra-shifts/{extraShift}/reject', [ExtraShiftController::class, 'reject'])->name('extra-shifts.reject');
-    
-    // Ticket Types
-    Route::apiResource('ticket-types', TicketTypeController::class);
-    
-    // Ticket Statuses
-    Route::apiResource('ticket-statuses', TicketStatusController::class);
-    
-    // Tickets
-    Route::apiResource('tickets', TicketController::class);
-    Route::get('my-tickets', [TicketController::class, 'index'])->name('tickets.my');
-    Route::put('tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.update-status');
-    
-    // Ticket Comments
-    Route::apiResource('tickets.comments', TicketCommentController::class)->only(['store', 'update', 'destroy']);
-    
-    // Ticket Attachments
-    Route::apiResource('tickets.attachments', TicketAttachmentController::class)->only(['store', 'destroy']);
-    Route::get('attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('attachments.download');
-    Route::get('attachments/{attachment}/preview', [TicketAttachmentController::class, 'preview'])->name('attachments.preview');
     
     // Penalties (Штрафная таблица)
     Route::apiResource('penalties', PenaltyController::class)->only(['index', 'show', 'store', 'update']);

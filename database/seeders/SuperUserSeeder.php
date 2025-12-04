@@ -27,8 +27,6 @@ class SuperUserSeeder extends Seeder
             'groups', 'groups.create', 'groups.read', 'groups.update', 'groups.delete',
             // График
             'schedule', 'schedule.create', 'schedule.read', 'schedule.update', 'schedule.delete',
-            // Тикеты
-            'tickets', 'tickets.create', 'tickets.read', 'tickets.update', 'tickets.delete',
             // Качество
             'quality', 'quality.create', 'quality.read', 'quality.update', 'quality.delete',
             'quality-criteria', 'quality-criteria.create', 'quality-criteria.read', 'quality-criteria.update', 'quality-criteria.delete',

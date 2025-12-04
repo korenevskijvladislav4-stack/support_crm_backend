@@ -32,7 +32,7 @@ class QualityMapFilter extends AbstractFilter
         if (!empty($searchTerm)) {
             $builder->whereHas('user', function ($query) use ($searchTerm) {
                 $parts = explode(' ', $searchTerm, 2);
-                
+
                 if (count($parts) === 2) {
                     // Если есть два слова, ищем по имени и фамилии отдельно
                     $query->where(function ($q) use ($parts) {
